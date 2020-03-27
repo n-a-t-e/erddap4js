@@ -14,9 +14,11 @@
           "https://coastwatch.pfeg.noaa.gov/erddap"
         );
 
-        const data = await erddapServer.queryURL(
-          "/tabledap/erdCinpKfmSFNH.json?id,size"
-        );
+        const data = await erddapServer.queryDataset({
+          datasetID: "erdCinpKfmSFNH",
+          variables: ["id", "size"],
+          constraints: ["time>=2007-06-24T00:00:00Z"]
+        });
 
         console.log(data);
       });
