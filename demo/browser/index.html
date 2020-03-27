@@ -10,10 +10,12 @@
     <script src="../../dist/browser/ERDDAP.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", async function() {
-        const erddapServer = new ERDDAP("https://catalogue.hakai.org/erddap");
+        const erddapServer = new ERDDAP(
+          "https://coastwatch.pfeg.noaa.gov/erddap"
+        );
 
         const data = await erddapServer.queryURL(
-          "/tabledap/HakaiBaynesSoundBoL5min.json?time,latitude,longitude"
+          "/tabledap/erdCinpKfmSFNH.json?id,size"
         );
 
         console.log(data);
