@@ -25,7 +25,7 @@ Put the dist/browser/ERDDAP.js in the same folder with your HTML file.
         "/tabledap/erdCinpKfmSFNH.json?id,size&time>=2007-06-24T00:00:00Z"
       );
 
-      // another way to write the same query (https://github.com/ioos/erddapy)[erdappy] style
+      // another way to write the same query erddapy style
       const data2 = await erddapServer.queryDataset({
         datasetID: "erdCinpKfmSFNH",
         variables: ["id", "size"],
