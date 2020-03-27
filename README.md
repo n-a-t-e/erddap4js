@@ -4,7 +4,7 @@ Simple ERDDAP library for JS, written in TypeScript. Works in Node or the browse
 
 ## Quickstart
 
-### Browser Example
+### Browser example
 
 See a demo in demo/browser/index.html
 
@@ -39,7 +39,7 @@ Put the dist/browser/ERDDAP.js in the same folder with your HTML file.
 </script>
 ```
 
-### NODE Example
+### Node example
 
 See a demo in demo/node/runQuery.js
 
@@ -69,7 +69,7 @@ To build the package for node and the browser, run
 
 `npm run build`
 
-## Tests & Coverage
+## Tests & coverage
 
 - `npm test` to run tests
 - `npm run coverage` - to build a folder 'coverage' to see coverage reports in your browser
