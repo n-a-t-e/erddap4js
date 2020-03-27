@@ -1,4 +1,4 @@
-# ERDDAP4JS - Browser/Node interface for ERDDAP
+# erddap4js - Browser/Node interface for ERDDAP
 
 Simple ERDDAP library for JS, written in TypeScript. Works in Node or the browser. Only supports tabledap JSON queries.
 
