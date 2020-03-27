@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>ERDDAP JS</title>
+  </head>
+
+  <body>
+    <script src="../../dist/browser/ERDDAP.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", async function() {
+        const erddapServer = new ERDDAP("https://catalogue.hakai.org/erddap");
+
+        const data = await erddapServer.queryURL(
+          "/tabledap/HakaiBaynesSoundBoL5min.json?time,latitude,longitude"
+        );
+
+        console.log(data);
+      });
+    </script>
+  </body>
+</html>

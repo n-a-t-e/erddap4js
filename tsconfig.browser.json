@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "outDir": "./dist/browser",
+    "noImplicitAny": true,
+    "module": "es6",
+    "target": "es5",
+    "moduleResolution": "node",
+    "jsx": "react",
+    "allowJs": true,
+    "removeComments": true
+  },
+  "include": ["src/**/*.ts"]
+}
