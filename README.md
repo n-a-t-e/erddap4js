@@ -14,42 +14,39 @@ Put the dist/browser/ERDDAP.js in the same folder with your HTML file.
 <script src="ERDDAP.js"></script>
 <script>
   document.addEventListener("DOMContentLoaded", async function() {
+    const erddapServer = new ERDDAP("https://coastwatch.pfeg.noaa.gov/erddap");
 
-      const erddapServer = new ERDDAP("https://coastwatch.pfeg.noaa.gov/erddap");
+    // list datasets
+    const datasets = await erddapServer.listDatasets();
 
-      // list datasets
-      const datasets = await erddapServer.listDatasets();
+    // basic query via URL
+    const data1 = await erddapServer.queryURL(
+      "/tabledap/erdCinpKfmSFNH.json?id,size&time>=2007-06-24T00:00:00Z"
+    );
 
-      // basic query via URL
-      const data1 = await erddapServer.queryURL(
-        "/tabledap/erdCinpKfmSFNH.json?id,size&time>=2007-06-24T00:00:00Z"
-      );
+    // another way to write the same query erddapy style
+    const data2 = await erddapServer.queryDataset({
+      datasetID: "erdCinpKfmSFNH",
+      variables: ["id", "size"],
+      constraints: ["time>=2007-06-24T00:00:00Z"]
+    });
 
-      // another way to write the same query erddapy style
-      const data2 = await erddapServer.queryDataset({
-        datasetID: "erdCinpKfmSFNH",
-        variables: ["id", "size"],
-        constraints: ["time>=2007-06-24T00:00:00Z"]
-      });
+    const metadata = await getMetadataByDatasetID("erdCinpKfmSFNH");
 
-      const metadata = await getMetadataByDatasetID("erdCinpKfmSFNH");
-
-      console.log(datasets);
-  }
+    console.log(datasets);
+  });
 </script>
 ```
 
 ### Node example
 
-See a demo in demo/node/runQuery.js
+The import is different, the rest is the same as the browser example above.
 
 ```js
 const ERDDAP = require("dist/node/ERDDAP").default;
-
-const erddapServer = new ERDDAP("https://coastwatch.pfeg.noaa.gov/erddap");
 ```
 
-The rest is very similar to the browser example
+See a demo in demo/node/runQuery.js
 
 ## Methods
 
