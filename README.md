@@ -1,6 +1,6 @@
 # erddap4js - ERDDAP JavaScript interface for the browser & Node
 
-Simple ERDDAP library for JS, written in TypeScript. Works in Node or the browser. Only supports tabledap JSON queries.
+Simple ERDDAP library for JS, written in TypeScript. Works in Node or the browser. Supports tabledap and griddap JSON queries.
 
 ## Quickstart
 
@@ -54,7 +54,8 @@ See a demo in demo/node/runQuery.js
 - `listDatasets()`
 - `getMetadataByDatasetID()`
 - `queryURL()`
-- `queryDataset()`
+- `tabledap()`
+- `griddap()`
 
 ## CORS
 
