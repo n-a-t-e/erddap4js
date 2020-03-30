@@ -10,6 +10,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const node_fetch_1 = require("node-fetch");
+const griddap_1 = require("./griddap");
+const tabledap_1 = require("./tabledap");
 class ERDDAP {
     constructor(url) {
         this.serverURL = ERDDAP.sanitizeERDDAPURL(url);
@@ -36,8 +38,8 @@ class ERDDAP {
             return node_fetch_1.default(this.serverURL + urlpath).then((response) => __awaiter(this, void 0, void 0, function* () {
                 if (!response.ok) {
                     if (response.status == 404) {
-                        const text = yield response.text();
-                        if (text.includes("nRows = 0"))
+                        const responseText = yield response.text();
+                        if (responseText.includes("nRows = 0"))
                             return [];
                     }
                     throw Error(response.statusText);
@@ -46,15 +48,11 @@ class ERDDAP {
             }));
         });
     }
-    queryDataset(config) {
-        const { datasetID, variables, constraints } = config;
-        let query = `/tabledap/${datasetID}.json?${variables.join(",")}`;
-        if (constraints)
-            query += "&" + constraints.join("&");
-        return this.queryURL(query);
+    tabledap(options) {
+        return this.queryURL(tabledap_1.tabledap(options));
     }
-    getMetadataByDatasetID(datasetID) {
-        return this.queryURL(`/info/${datasetID}/index.json`);
+    griddap(options) {
+        return this.queryURL(griddap_1.griddap(options));
     }
     listDatasets() {
         return __awaiter(this, void 0, void 0, function* () {

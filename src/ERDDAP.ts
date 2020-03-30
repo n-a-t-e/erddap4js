@@ -1,4 +1,6 @@
 import fetch from "node-fetch";
+import { griddap } from "./griddap";
+import { tabledap } from "./tabledap";
 
 export default class ERDDAP {
   // url of server, eg, https://example.com/erddap/
@@ -20,8 +22,8 @@ export default class ERDDAP {
     return url;
   }
 
-  // reshapes ERDDAP response so it's easier for web apps to consume
-  // see ERDDAP.test.ts for an example of the translation
+  // reshapes ERDDAP's json response so it's easier for web apps to consume
+  // see tests/ERDDAP.test.ts for an example of the translation
   static reshapeJSON(erddapJSON: ERDDAP.JSONResponse): object[] {
     const { columnNames, rows } = erddapJSON.table;
 
@@ -39,28 +41,27 @@ export default class ERDDAP {
     return fetch(this.serverURL + urlpath).then(async response => {
       if (!response.ok) {
         if (response.status == 404) {
-          const text = await response.text();
-          if (text.includes("nRows = 0")) return [];
+          const responseText = await response.text();
+          if (responseText.includes("nRows = 0")) return [];
         }
+        // if it wasn't "no-data error" then it's a real error
         throw Error(response.statusText);
       }
       return response.json().then(ERDDAP.reshapeJSON);
     });
   }
-  // querying datasets erddapy style
-  queryDataset(config: ERDDAP.Query): Promise<any> {
-    const { datasetID, variables, constraints } = config;
-    let query = `/tabledap/${datasetID}.json?${variables.join(",")}`;
-    if (constraints) query += "&" + constraints.join("&");
-    return this.queryURL(query);
+
+  tabledap(options: tabledap) {
+    return this.queryURL(tabledap(options));
   }
 
-  // list metadata including variables
-  getMetadataByDatasetID(datasetID: string): Object {
-    return this.queryURL(`/info/${datasetID}/index.json`);
+  griddap(options: griddap) {
+    return this.queryURL(griddap(options));
   }
 
   // get array of dataset IDs
+  // TODO does this check griddap datasets too?
+
   async listDatasets(): Promise<any> {
     const res = await this.queryURL("/tabledap/allDatasets.json?datasetID");
 
@@ -70,15 +71,7 @@ export default class ERDDAP {
   }
 }
 
-// typescript interfaces
 namespace ERDDAP {
-  // used in queryDataset()
-  export interface Query {
-    datasetID: string;
-    variables: string[];
-    constraints: string[];
-  }
-
   // used in parsing ERDDAP's json response
   export interface JSONResponse {
     table: {

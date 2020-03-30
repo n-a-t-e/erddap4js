@@ -25,10 +25,10 @@ Put the dist/browser/ERDDAP.js in the same folder with your HTML file.
     );
 
     // another way to write the same query erddapy style
-    const data2 = await erddapServer.queryDataset({
+    const data2 = await erddapServer.tabledap({
       datasetID: "erdCinpKfmSFNH",
       variables: ["id", "size"],
-      constraints: ["time>=2007-06-24T00:00:00Z"]
+      constraints: [["time", ">=", "2007-06-24T00:00:00Z"]]
     });
 
     const metadata = await getMetadataByDatasetID("erdCinpKfmSFNH");

@@ -14,7 +14,7 @@
           "https://coastwatch.pfeg.noaa.gov/erddap"
         );
 
-        const data = await erddapServer.queryDataset({
+        const data = await erddapServer.tabledap({
           datasetID: "erdCinpKfmSFNH",
           variables: ["id", "size"],
           constraints: ["time>=2007-06-24T00:00:00Z"]

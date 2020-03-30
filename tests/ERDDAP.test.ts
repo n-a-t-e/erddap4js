@@ -8,9 +8,10 @@ describe("reshapeJSON", function() {
     const input = {
       table: {
         columnNames: ["a", "b", "c"],
-        columnTypes: ["String", "String", "String"],
-        columnUnits: ["d", "e", "f"],
-        rows: [["val1", "val2", "val3"]]
+        rows: [
+          ["val1", "val2", "val3"],
+          ["val4", "val5", "val6"]
+        ]
       }
     };
 
@@ -19,6 +20,11 @@ describe("reshapeJSON", function() {
         a: "val1",
         b: "val2",
         c: "val3"
+      },
+      {
+        a: "val4",
+        b: "val5",
+        c: "val6"
       }
     ];
     const output = ERDDAP.reshapeJSON(input);
