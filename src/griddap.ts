@@ -10,7 +10,7 @@ export interface griddap {
   startStrideStop: any[][];
 }
 
-export function griddap(options: griddap) {
+export function griddap(options: griddap): string {
   const { datasetID, vars = [], startStrideStop = [] } = options;
 
   if (!datasetID) throw new Error("Missing datasetID");

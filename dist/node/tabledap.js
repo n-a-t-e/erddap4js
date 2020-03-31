@@ -55,7 +55,7 @@ function tabledap(options) {
         if (orderType && orderVariables)
             expressions.push(`${orderType}(${orderVariables.join()})`);
         if (expressions.length)
-            query += "?" + expressions.join("&");
+            query += '?' + (variables.length ? '' : '&') + expressions.join("&");
         return query;
     }
 }

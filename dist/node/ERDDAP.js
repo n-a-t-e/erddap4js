@@ -35,24 +35,31 @@ class ERDDAP {
     }
     queryURL(urlpath) {
         return __awaiter(this, void 0, void 0, function* () {
-            return node_fetch_1.default(this.serverURL + urlpath).then((response) => __awaiter(this, void 0, void 0, function* () {
+            const urlComplete = this.serverURL + urlpath;
+            return node_fetch_1.default(urlComplete).then((response) => __awaiter(this, void 0, void 0, function* () {
                 if (!response.ok) {
-                    if (response.status == 404) {
-                        const responseText = yield response.text();
-                        if (responseText.includes("nRows = 0"))
-                            return [];
-                    }
-                    throw Error(response.statusText);
+                    const responseText = yield response.text();
+                    if (response.status == 404 && responseText.includes("nRows = 0"))
+                        return [];
+                    throw new Error(`HTTP ${response.status} error fetching ${urlComplete}\n${ERDDAP.errorParser(responseText)}\n`);
                 }
                 return response.json().then(ERDDAP.reshapeJSON);
             }));
         });
     }
     tabledap(options) {
-        return this.queryURL(tabledap_1.tabledap(options));
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.queryURL(tabledap_1.tabledap(options));
+        });
     }
     griddap(options) {
-        return this.queryURL(griddap_1.griddap(options));
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.queryURL(griddap_1.griddap(options));
+        });
+    }
+    static errorParser(errorMessage) {
+        const re = new RegExp(/message=\"(.*)\"/).exec(errorMessage) || [];
+        return re[1] || errorMessage;
     }
     listDatasets() {
         return __awaiter(this, void 0, void 0, function* () {

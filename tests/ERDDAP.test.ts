@@ -3,8 +3,8 @@ import "mocha";
 
 import ERDDAP from "../src/ERDDAP";
 
-describe("reshapeJSON", function() {
-  it("reshapes ERDDAP's json response to an array of objects", function() {
+describe("reshapeJSON", function () {
+  it("reshapes ERDDAP's json response to an array of objects", function () {
     const input = {
       table: {
         columnNames: ["a", "b", "c"],
@@ -32,11 +32,34 @@ describe("reshapeJSON", function() {
   });
 });
 
-describe("sanitizeERDDAPURL", function() {
-  it("validates and sanitizes ERDDAP server URL", function() {
+describe("sanitizeERDDAPURL", function () {
+  it("validates and sanitizes ERDDAP server URL", function () {
     expect(ERDDAP.sanitizeERDDAPURL("http://example.com/erddap/")).to.equal(
       "http://example.com/erddap"
     );
     expect(() => ERDDAP.sanitizeERDDAPURL("example.com/erddap/")).to.throw();
+  });
+});
+
+
+/*
+Error {
+  code=400;
+  message="Bad Request: Query error: Unrecognized constraint variable="a".";
+}
+*/
+
+
+describe("ERDDAP.errorParser", function () {
+  it("returns error message", function () {
+    expect(ERDDAP.errorParser(
+      `Error {
+          code=400;
+          message="Bad Request: Query error: Unrecognized constraint variable="a".";
+      }`
+    )).to.equal(
+      'Bad Request: Query error: Unrecognized constraint variable="a".'
+    );
+
   });
 });

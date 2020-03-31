@@ -10,13 +10,13 @@ const operators = ["!=", "=~", "<=", ">=", "=", "<", ">"];
 export interface tabledap {
   datasetID: string;
   variables?: string[];
-  constraints: any[][];
+  constraints?: any[][];
   distinct?: boolean;
   orderType?: string;
   orderVariables?: string[];
 }
 
-export function tabledap(options: tabledap) {
+export function tabledap(options: tabledap): string {
   {
     const {
       datasetID,
@@ -91,7 +91,8 @@ export function tabledap(options: tabledap) {
     if (orderType && orderVariables)
       expressions.push(`${orderType}(${orderVariables.join()})`);
 
-    if (expressions.length) query += "?" + expressions.join("&");
+    // erddap requires the '?&' if there are no return variables
+    if (expressions.length) query += '?' + (variables.length ? '' : '&') + expressions.join("&");
 
     return query;
   }

@@ -38,30 +38,36 @@ export default class ERDDAP {
   // Query a url path such as "/tabledap/erdCinpKfmSFNH.json?id,size"
   // ERDDAP throws a 404 error when there is no data found, this returns an empty array instead
   async queryURL(urlpath: string): Promise<any> {
-    return fetch(this.serverURL + urlpath).then(async response => {
+    const urlComplete = this.serverURL + urlpath
+    return fetch(urlComplete).then(async response => {
       if (!response.ok) {
-        if (response.status == 404) {
-          const responseText = await response.text();
-          if (responseText.includes("nRows = 0")) return [];
-        }
+        const responseText = await response.text();
+        if (response.status == 404 && responseText.includes("nRows = 0"))
+          return [];
+
         // if it wasn't "no-data error" then it's a real error
-        throw Error(response.statusText);
+        throw new Error(`HTTP ${response.status} error fetching ${urlComplete}\n${ERDDAP.errorParser(responseText)}\n`);
       }
       return response.json().then(ERDDAP.reshapeJSON);
     });
   }
 
-  tabledap(options: tabledap) {
+  async tabledap(options: tabledap) {
     return this.queryURL(tabledap(options));
   }
 
-  griddap(options: griddap) {
+  async griddap(options: griddap) {
     return this.queryURL(griddap(options));
+  }
+
+  // parse out the message="" section
+  static errorParser(errorMessage: string): string {
+    const re = new RegExp(/message=\"(.*)\"/).exec(errorMessage) || [];
+    return re[1] || errorMessage;
   }
 
   // get array of dataset IDs
   // TODO does this check griddap datasets too?
-
   async listDatasets(): Promise<any> {
     const res = await this.queryURL("/tabledap/allDatasets.json?datasetID");
 
