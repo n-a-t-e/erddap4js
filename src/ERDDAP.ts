@@ -1,6 +1,6 @@
 import fetch from "node-fetch";
-import { griddap } from "./griddap";
-import { tabledap } from "./tabledap";
+import { griddapURLBuilder, griddapOptions } from "./griddap";
+import { tabledapURLBuilder, tabledapOptions } from "./tabledap";
 
 export default class ERDDAP {
   // url of server, eg, https://example.com/erddap/
@@ -52,12 +52,12 @@ export default class ERDDAP {
     });
   }
 
-  async tabledap(options: tabledap) {
-    return this.queryURL(tabledap(options));
+  async tabledap(options: tabledapOptions) {
+    return this.queryURL(tabledapURLBuilder(options));
   }
 
-  async griddap(options: griddap) {
-    return this.queryURL(griddap(options));
+  async griddap(options: griddapOptions) {
+    return this.queryURL(griddapURLBuilder(options));
   }
 
   // parse out the message="" section
@@ -65,15 +65,22 @@ export default class ERDDAP {
     const re = new RegExp(/message=\"(.*)\"/).exec(errorMessage) || [];
     return re[1] || errorMessage;
   }
+  // return type
+  async info(datasetID: string): Promise<object[]> {
+    if (!datasetID) throw new Error('Missing dataset ID');
+
+    return this.queryURL(`/info/${datasetID}/index.json`);
+  }
 
   // get array of dataset IDs
-  // TODO does this check griddap datasets too?
-  async listDatasets(): Promise<any> {
-    const res = await this.queryURL("/tabledap/allDatasets.json?datasetID");
+  async allDatasets(): Promise<string[]> {
+    // this gets griddap datasets too
+    const res = await this.queryURL("/tabledap/allDatasets.json");
 
     return res
-      .map((row: any) => row.datasetID)
-      .filter((e: string) => e !== "allDatasets");
+      // .map((row: any) => row.dataset)
+      // @ts-ignore
+      .filter((e: string) => e.dataset !== "allDatasets");
   }
 }
 

@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const operators = ["!=", "=~", "<=", ">=", "=", "<", ">"];
-function tabledap(options) {
+function tabledapURLBuilder(options) {
     {
-        const { datasetID, variables = [], constraints = [], distinct, orderType, orderVariables = [] } = options;
+        const { dataset, variables = [], constraints = [], distinct, orderType, orderVariables = [] } = options;
         const orderByOptions = [
             "orderBy",
             "orderByClosest",
@@ -14,8 +14,8 @@ function tabledap(options) {
             "orderByMinMax",
             "orderByMean"
         ];
-        if (!datasetID)
-            throw new Error("Missing datasetID");
+        if (!dataset)
+            throw new Error("Missing dataset");
         if (orderType) {
             if (!orderByOptions.includes(orderType)) {
                 throw new Error(`Order type given was '${orderType}'. It must be one of: ${orderByOptions}`);
@@ -44,7 +44,7 @@ function tabledap(options) {
                     break;
             }
         });
-        let query = `/tabledap/${datasetID}.json`;
+        let query = `/tabledap/${dataset}.json`;
         const expressions = [];
         if (variables.length)
             expressions.push(variables.join());
@@ -59,4 +59,4 @@ function tabledap(options) {
         return query;
     }
 }
-exports.tabledap = tabledap;
+exports.tabledapURLBuilder = tabledapURLBuilder;

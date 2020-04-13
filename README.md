@@ -13,25 +13,32 @@ Put the dist/browser/ERDDAP.js in the same folder with your HTML file.
 ```html
 <script src="ERDDAP.js"></script>
 <script>
-  document.addEventListener("DOMContentLoaded", async function() {
+  document.addEventListener("DOMContentLoaded", async function () {
     const erddapServer = new ERDDAP("https://coastwatch.pfeg.noaa.gov/erddap");
 
     // list datasets
-    const datasets = await erddapServer.listDatasets();
+    const datasets = await erddapServer.allDatasets();
 
     // basic query via URL
-    const data1 = await erddapServer.queryURL(
+    const data = await erddapServer.queryURL(
       "/tabledap/erdCinpKfmSFNH.json?id,size&time>=2007-06-24T00:00:00Z"
     );
 
-    // another way to write the same query erddapy style
-    const data2 = await erddapServer.tabledap({
-      datasetID: "erdCinpKfmSFNH",
+    const tableData = await erddapServer.tabledap({
+      dataset: "erdCinpKfmSFNH",
       variables: ["id", "size"],
-      constraints: [["time", ">=", "2007-06-24T00:00:00Z"]]
+      constraints: [["time", ">=", "2007-06-24T00:00:00Z"]],
     });
 
-    const metadata = await getMetadataByDatasetID("erdCinpKfmSFNH");
+    const gridData = await erddapServer.griddap({
+      dataset: "jplAmsreSstMon_LonPM180",
+      time: ["2010-12-16T12:00:00Z", "2010-12-16T12:00:00Z"],
+      lat: [50, 50],
+      long: [-150, -120],
+      variables: ["tos", "tosNobs", "tosStderr"],
+    });
+
+    const metadata = await erddapServer.info("erdCinpKfmSFNH");
 
     console.log(datasets);
   });
@@ -51,8 +58,8 @@ See a demo in demo/node/runQuery.js
 ## Methods
 
 - `ERDDAP()`
-- `listDatasets()`
-- `getMetadataByDatasetID()`
+- `allDatasets()`
+- `info()`
 - `queryURL()`
 - `tabledap()`
 - `griddap()`

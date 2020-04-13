@@ -7,8 +7,8 @@ tabledap query builder
 
 const operators = ["!=", "=~", "<=", ">=", "=", "<", ">"];
 
-export interface tabledap {
-  datasetID: string;
+export interface tabledapOptions {
+  dataset: string;
   variables?: string[];
   constraints?: any[][];
   distinct?: boolean;
@@ -16,10 +16,10 @@ export interface tabledap {
   orderVariables?: string[];
 }
 
-export function tabledap(options: tabledap): string {
+export function tabledapURLBuilder(options: tabledapOptions): string {
   {
     const {
-      datasetID,
+      dataset,
       variables = [],
       constraints = [],
       distinct,
@@ -39,7 +39,7 @@ export function tabledap(options: tabledap): string {
       "orderByMean"
     ];
 
-    if (!datasetID) throw new Error("Missing datasetID");
+    if (!dataset) throw new Error("Missing dataset");
 
     if (orderType) {
       if (!orderByOptions.includes(orderType)) {
@@ -61,7 +61,7 @@ export function tabledap(options: tabledap): string {
       // some basic type checking of special case variables (LLAT variables)
       switch (variable) {
         case "time":
-          // check that its a time
+          // TODO check that its a time
           break;
         case "latitude":
         case "longitude":
@@ -81,7 +81,7 @@ export function tabledap(options: tabledap): string {
       }
     });
 
-    let query = `/tabledap/${datasetID}.json`;
+    let query = `/tabledap/${dataset}.json`;
 
     const expressions = [];
     if (variables.length) expressions.push(variables.join());

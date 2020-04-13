@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>ERDDAP JS</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.15.0/d3.min.js"
+    integrity="sha256-m0QmIsBXcOMiETRmpT3qg2IQ/i0qazJA2miCHzOmS1Y=" crossorigin="anonymous"></script>
+</head>
+
+<body>
+  <div>Example from https://gordonlesti.com/d3-time-series-example/</div>
+  <div id="wrapper"></div>
+</body>
+
+<script src="../../dist/browser/ERDDAP.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", async function () {
+    const erddapServer = new ERDDAP(
+      "https://coastwatch.pfeg.noaa.gov/erddap"
+    );
+
+    const data2 = await erddapServer.tabledap({
+      dataset: "erdCinpKfmSFNH",
+      variables: ["id", "size"],
+      constraints: [["time", ">=", "2007-06-24T00:00:00Z"]]
+    });
+  });
+
+  var width = 10240,
+    height = 1024,
+    svg = d3
+      .select("#wrapper")
+      .attr(
+        "style",
+        "padding-bottom: " + Math.ceil((height * 100) / width) + "%"
+      )
+      .append("svg")
+      .attr("viewBox", "0 0 " + width + " " + height);
+
+  var x = d3.scaleLinear().rangeRound([0, width]);
+  var y = d3.scaleLinear().rangeRound([height, 0]);
+
+  var spaceDsvParser = d3.dsvFormat(" ");
+  d3.request("/media/post/d3-time-series-example/timeseries.csv")
+    .mimeType("text/csv")
+    .response(function (xhr) {
+      return spaceDsvParser.parse(xhr.responseText);
+    })
+    .get(function (error, data) {
+      if (error) throw error;
+
+      x.domain([0, data.length]);
+      y.domain([-16, 16]);
+
+      var drawAxis = function (yValueCallback, color) {
+        svg
+          .append("path")
+          .datum(data)
+          .attr("fill", "none")
+          .attr("stroke", color)
+          .attr("stroke-linejoin", "round")
+          .attr("stroke-linecap", "round")
+          .attr("stroke-width", 5)
+          .attr(
+            "d",
+            d3
+              .line()
+              .x(function (d) {
+                return x(d.t);
+              })
+              .y(yValueCallback)
+          );
+      };
+      drawAxis(function (d) {
+        return y(d.x);
+      }, "blue");
+      drawAxis(function (d) {
+        return y(d.y);
+      }, "red");
+      drawAxis(function (d) {
+        return y(d.z);
+      }, "green");
+    });
+</script>
+
+</html>

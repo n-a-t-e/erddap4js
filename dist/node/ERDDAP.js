@@ -49,24 +49,30 @@ class ERDDAP {
     }
     tabledap(options) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.queryURL(tabledap_1.tabledap(options));
+            return this.queryURL(tabledap_1.tabledapURLBuilder(options));
         });
     }
     griddap(options) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.queryURL(griddap_1.griddap(options));
+            return this.queryURL(griddap_1.griddapURLBuilder(options));
         });
     }
     static errorParser(errorMessage) {
         const re = new RegExp(/message=\"(.*)\"/).exec(errorMessage) || [];
         return re[1] || errorMessage;
     }
-    listDatasets() {
+    info(datasetID) {
         return __awaiter(this, void 0, void 0, function* () {
-            const res = yield this.queryURL("/tabledap/allDatasets.json?datasetID");
+            if (!datasetID)
+                throw new Error('Missing dataset ID');
+            return this.queryURL(`/info/${datasetID}/index.json`);
+        });
+    }
+    allDatasets() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const res = yield this.queryURL("/tabledap/allDatasets.json");
             return res
-                .map((row) => row.datasetID)
-                .filter((e) => e !== "allDatasets");
+                .filter((e) => e.dataset !== "allDatasets");
         });
     }
 }

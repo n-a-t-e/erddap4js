@@ -2,32 +2,48 @@
 
 Griddap query builder
 
-*/
-
-export interface griddap {
-  datasetID: string;
-  vars: string[];
-  startStrideStop: any[][];
+example options:
+{
+  time: ["2008-12-15T00:00:00Z", "2009-12-15T00:00:00Z"],
+  altitude (or depth): [1, 10],
+  lat: [-75.25, 89.25],
+  long: [0.25, 359.75, 1], // <-- stride explicitly 1
+  variables: ['sstp']
 }
 
-export function griddap(options: griddap): string {
-  const { datasetID, vars = [], startStrideStop = [] } = options;
+*/
 
-  if (!datasetID) throw new Error("Missing datasetID");
-  if (!startStrideStop.length) throw new Error("Missing startStrideStop");
+export interface griddapOptions {
+  dataset: string;
+  time: any[],
+  altitude?: number[]
+  depth?: number[]
+  lat?: number[],
+  long?: number[],
+  variables: string[]
+}
 
-  startStrideStop.forEach((ele: string[]) => {
-    if (ele.length !== 3)
-      throw new Error("Griddap must have 3 values - start,stride,stop");
-  });
-  // TODO check stride must be an integer? (could be a big integer)
-  const triplets = startStrideStop
-    .map(([start, stride, stop]) => `[(${start}):${stride}:(${stop})]`)
-    .join("");
+export function griddapURLBuilder(options: griddapOptions): string {
+  if (!options) throw new Error("Must supply options object")
+  const { dataset, variables } = options;
+  if (!dataset) throw new Error("Missing dataset");
+  const dimensions = ['time', 'altitude', 'depth', 'lat', 'long'];
 
-  const joined = vars.map(var1 => var1 + "" + triplets).join();
+  // TODO could do validation on these fields
+  const triplets = dimensions.map((dimension: string) => {
+    // @ts-ignore - TODO
+    const dimensionArr = options[dimension] || []
+    if (dimensionArr.length && dimensionArr.length < 2)
+      throw new Error(`Must supply Start and Stop for dimension "${dimension}". eg "depth: [1,2]"`);
 
-  // make sure each element of startStrideStop is a triplet (1,2,3)
-  const query = `/griddap/${datasetID}.json?${joined}`;
+    const [start, stop, stride] = dimensionArr;
+    if (start && stop)
+      return `[(${start}):${stride || 1}:(${stop})]`;
+  }).filter(e => e);
+  if (!triplets.length) throw new Error("Must filter on at least one dimension.")
+  const joined = variables.map(var1 => var1 + "" + triplets.join("")).join();
+
+  const query = `/griddap/${dataset}.json?${joined}`;
+
   return query;
 }

@@ -1,27 +1,29 @@
 <!DOCTYPE html>
 
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <title>ERDDAP JS</title>
-  </head>
 
-  <body>
-    <script src="../../dist/browser/ERDDAP.js"></script>
-    <script>
-      document.addEventListener("DOMContentLoaded", async function() {
-        const erddapServer = new ERDDAP(
-          "https://coastwatch.pfeg.noaa.gov/erddap"
-        );
+<head>
+  <meta charset="utf-8" />
+  <title>ERDDAP JS</title>
+</head>
 
-        const data = await erddapServer.tabledap({
-          datasetID: "erdCinpKfmSFNH",
-          variables: ["id", "size"],
-          constraints: ["time>=2007-06-24T00:00:00Z"]
-        });
+<body>
+  <script src="../../dist/browser/ERDDAP.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async function () {
+      const erddapServer = new ERDDAP(
+        "https://coastwatch.pfeg.noaa.gov/erddap"
+      );
 
-        console.log(data);
+      const data = await erddapServer.tabledap({
+        dataset: "erdCinpKfmSFNH",
+        variables: ["id", "size"],
+        constraints: ["time>=2007-06-24T00:00:00Z"]
       });
-    </script>
-  </body>
+
+      console.log(data);
+    });
+  </script>
+</body>
+
 </html>
