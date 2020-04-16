@@ -31,9 +31,12 @@ function tabledapURLBuilder(options) {
                 case "time":
                     break;
                 case "latitude":
+                    if (Math.abs(value) > 90)
+                        throw new Error("Invalid lat: " + value);
+                    break;
                 case "longitude":
                     if (Math.abs(value) > 180)
-                        throw new Error("Invalid lat/long: " + value);
+                        throw new Error("Invalid long: " + value);
                     break;
                 case "depth":
                 case "altitude":

@@ -5,6 +5,8 @@ tabledap query builder
 
 */
 
+import ERDDAP from "./ERDDAP";
+
 const operators = ["!=", "=~", "<=", ">=", "=", "<", ">"];
 
 export interface tabledapOptions {
@@ -61,12 +63,15 @@ export function tabledapURLBuilder(options: tabledapOptions): string {
       // some basic type checking of special case variables (LLAT variables)
       switch (variable) {
         case "time":
-          // TODO check that its a time
+          // TODO check time somehow. It can take things like "2005"
           break;
         case "latitude":
+          if (Math.abs(value) > 90)
+            throw new Error("Invalid lat: " + value);
+          break;
         case "longitude":
           if (Math.abs(value) > 180)
-            throw new Error("Invalid lat/long: " + value);
+            throw new Error("Invalid long: " + value);
           break;
 
         case "depth":

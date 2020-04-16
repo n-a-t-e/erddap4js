@@ -6,8 +6,15 @@ export default class ERDDAP {
   // url of server, eg, https://example.com/erddap/
   serverURL: string;
   // clean up url
-  constructor(url: string) {
+  constructor(url: string, private debug: boolean = false) {
     this.serverURL = ERDDAP.sanitizeERDDAPURL(url);
+  }
+  static validate8601time(str: string): Boolean {
+    if (typeof (str) !== 'string')
+      return false
+    // must match yyyy-MM-ddTHH:mm:ssZ
+    const regex8601 = /(\d{4})-(\d{2})-(\d{2})T(\d{2})\:(\d{2})\:(\d{2})Z?/;
+    return Boolean(str.match(regex8601));
   }
 
   static sanitizeERDDAPURL(url: string): string {
@@ -25,6 +32,8 @@ export default class ERDDAP {
   // reshapes ERDDAP's json response so it's easier for web apps to consume
   // see tests/ERDDAP.test.ts for an example of the translation
   static reshapeJSON(erddapJSON: ERDDAP.JSONResponse): object[] {
+
+
     const { columnNames, rows } = erddapJSON.table;
 
     return rows.map((rowArray: any[]) =>
@@ -38,7 +47,8 @@ export default class ERDDAP {
   // Query a url path such as "/tabledap/erdCinpKfmSFNH.json?id,size"
   // ERDDAP throws a 404 error when there is no data found, this returns an empty array instead
   async queryURL(urlpath: string): Promise<any> {
-    const urlComplete = this.serverURL + urlpath
+    const urlComplete = this.serverURL + urlpath;
+    if (this.debug) console.warn(`FETCHING ${urlComplete}\n`)
     return fetch(urlComplete).then(async response => {
       if (!response.ok) {
         const responseText = await response.text();
@@ -46,7 +56,7 @@ export default class ERDDAP {
           return [];
 
         // if it wasn't "no-data error" then it's a real error
-        throw new Error(`HTTP ${response.status} error fetching ${urlComplete}\n${ERDDAP.errorParser(responseText)}\n`);
+        throw new Error(`HTTP ${response.status} error fetching ${urlComplete}\n${ERDDAP.errorParser(responseText)}\n\n`);
       }
       return response.json().then(ERDDAP.reshapeJSON);
     });
@@ -63,7 +73,11 @@ export default class ERDDAP {
   // parse out the message="" section
   static errorParser(errorMessage: string): string {
     const re = new RegExp(/message=\"(.*)\"/).exec(errorMessage) || [];
-    return re[1] || errorMessage;
+
+    if (re.length > 1)
+      return re[1].replace(/\\n/g, "\n").replace(/\\/g, '');
+
+    return errorMessage;
   }
   // return type
   async info(datasetID: string): Promise<object[]> {

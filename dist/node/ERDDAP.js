@@ -8,13 +8,23 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const node_fetch_1 = require("node-fetch");
+const node_fetch_1 = __importDefault(require("node-fetch"));
 const griddap_1 = require("./griddap");
 const tabledap_1 = require("./tabledap");
 class ERDDAP {
-    constructor(url) {
+    constructor(url, debug = false) {
+        this.debug = debug;
         this.serverURL = ERDDAP.sanitizeERDDAPURL(url);
+    }
+    static validate8601time(str) {
+        if (typeof (str) !== 'string')
+            return false;
+        const regex8601 = /(\d{4})-(\d{2})-(\d{2})T(\d{2})\:(\d{2})\:(\d{2})Z?/;
+        return Boolean(str.match(regex8601));
     }
     static sanitizeERDDAPURL(url) {
         var _a;
@@ -36,12 +46,14 @@ class ERDDAP {
     queryURL(urlpath) {
         return __awaiter(this, void 0, void 0, function* () {
             const urlComplete = this.serverURL + urlpath;
+            if (this.debug)
+                console.warn(`FETCHING ${urlComplete}\n`);
             return node_fetch_1.default(urlComplete).then((response) => __awaiter(this, void 0, void 0, function* () {
                 if (!response.ok) {
                     const responseText = yield response.text();
                     if (response.status == 404 && responseText.includes("nRows = 0"))
                         return [];
-                    throw new Error(`HTTP ${response.status} error fetching ${urlComplete}\n${ERDDAP.errorParser(responseText)}\n`);
+                    throw new Error(`HTTP ${response.status} error fetching ${urlComplete}\n${ERDDAP.errorParser(responseText)}\n\n`);
                 }
                 return response.json().then(ERDDAP.reshapeJSON);
             }));
@@ -59,7 +71,9 @@ class ERDDAP {
     }
     static errorParser(errorMessage) {
         const re = new RegExp(/message=\"(.*)\"/).exec(errorMessage) || [];
-        return re[1] || errorMessage;
+        if (re.length > 1)
+            return re[1].replace(/\\n/g, "\n").replace(/\\/g, '');
+        return errorMessage;
     }
     info(datasetID) {
         return __awaiter(this, void 0, void 0, function* () {
