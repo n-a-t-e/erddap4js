@@ -5,8 +5,6 @@ tabledap query builder
 
 */
 
-import ERDDAP from "./ERDDAP";
-
 const operators = ["!=", "=~", "<=", ">=", "=", "<", ">"];
 
 export interface tabledapOptions {
@@ -51,7 +49,7 @@ export function tabledapURLBuilder(options: tabledapOptions): string {
       }
 
       if (!orderVariables.length) {
-        throw new Error("At least one variable must be given to order by");
+        throw new Error("At least one variable must be given to order by. eg {..., orderVariables: ['time']}");
       }
     }
     constraints.forEach(([variable, operator, value]) => {

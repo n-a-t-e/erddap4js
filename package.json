@@ -2,9 +2,9 @@
   "dependencies": {
     "node-fetch": "^2.6.0"
   },
-  "name": "erddap-js",
+  "name": "erddap4js",
   "description": "ERDDAP library for Node or the browser",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "main": "ERDDAP.js",
   "devDependencies": {
     "@types/node": "^12.12.31",

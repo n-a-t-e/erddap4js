@@ -21,7 +21,7 @@ function tabledapURLBuilder(options) {
                 throw new Error(`Order type given was '${orderType}'. It must be one of: ${orderByOptions}`);
             }
             if (!orderVariables.length) {
-                throw new Error("At least one variable must be given to order by");
+                throw new Error("At least one variable must be given to order by. eg {..., orderVariables: ['time']}");
             }
         }
         constraints.forEach(([variable, operator, value]) => {
