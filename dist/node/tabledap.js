@@ -14,8 +14,14 @@ function tabledapURLBuilder(options) {
             "orderByMinMax",
             "orderByMean"
         ];
+        const optionFieldNames = ['dataset', 'variables', 'constraints', 'distinct', 'orderType', 'orderVariables'];
+        Object.keys(options).forEach(k => {
+            if (!optionFieldNames.includes(k)) {
+                throw new Error(`Option '${k}' is not supported. The options are: ${optionFieldNames}`);
+            }
+        });
         if (!dataset)
-            throw new Error("Missing dataset");
+            throw new Error("Missing 'dataset' option");
         if (orderType) {
             if (!orderByOptions.includes(orderType)) {
                 throw new Error(`Order type given was '${orderType}'. It must be one of: ${orderByOptions}`);
@@ -51,6 +57,8 @@ function tabledapURLBuilder(options) {
         const expressions = [];
         if (variables.length)
             expressions.push(variables.join());
+        else
+            console.warn("No 'variables' field given, retrieving all variables");
         if (constraints.length)
             expressions.push(constraints.map(e => e.join("")).join("&"));
         if (distinct)

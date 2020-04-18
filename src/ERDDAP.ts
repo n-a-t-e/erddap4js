@@ -86,15 +86,13 @@ export default class ERDDAP {
     return this.queryURL(`/info/${datasetID}/index.json`);
   }
 
-  // get array of dataset IDs
+  // get array of dataset info
   async allDatasets(): Promise<string[]> {
     // this gets griddap datasets too
     const res = await this.queryURL("/tabledap/allDatasets.json");
 
     return res
-      // .map((row: any) => row.dataset)
-      // @ts-ignore
-      .filter((e: string) => e.dataset !== "allDatasets");
+      .filter((e: any) => e.datasetID !== "allDatasets");
   }
 }
 

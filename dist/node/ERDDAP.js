@@ -86,7 +86,7 @@ class ERDDAP {
         return __awaiter(this, void 0, void 0, function* () {
             const res = yield this.queryURL("/tabledap/allDatasets.json");
             return res
-                .filter((e) => e.dataset !== "allDatasets");
+                .filter((e) => e.datasetID !== "allDatasets");
         });
     }
 }

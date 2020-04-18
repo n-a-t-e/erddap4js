@@ -57,6 +57,14 @@ describe("tabledap", function () {
       })
     ).to.equal("/tabledap/23.json?&orderBy(time)");
   });
+  it("should fail unrecognized options", function () {
+    expect(() =>
+      tabledapURLBuilder({
+        // @ts-ignore
+        myNewOption: "TRUE"
+      })
+    ).to.throw();
+  });
   it("should fail with bad order type", function () {
     expect(() =>
       tabledapURLBuilder({
