@@ -54,7 +54,7 @@ npm install git+https://github.com/n-a-t-e/erddap4js.git
 ```
 
 ```js
-const ERDDAP = require("erddap4js/dist/node").default;
+const ERDDAP = require("erddap4js/dist/node/ERDDAP").default;
 ```
 
 See a demo in demo/node/runQuery.js
