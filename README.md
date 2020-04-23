@@ -1,3 +1,5 @@
+![Node.js CI](https://github.com/n-a-t-e/erddap4js/workflows/Node.js%20CI/badge.svg)
+
 # erddap4js - ERDDAP JavaScript interface for the browser & Node
 
 Simple ERDDAP library for JS, written in TypeScript. Works in Node or the browser. Supports tabledap and griddap JSON queries.
