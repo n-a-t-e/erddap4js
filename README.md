@@ -1,4 +1,4 @@
-![Node.js CI](https://github.com/n-a-t-e/erddap4js/workflows/Node.js%20CI/badge.svg)
+[![Node.js CI](https://github.com/n-a-t-e/erddap4js/workflows/Node.js%20CI/badge.svg)](https://github.com/n-a-t-e/erddap4js/actions)
 
 # erddap4js - ERDDAP JavaScript interface for the browser & Node
 
