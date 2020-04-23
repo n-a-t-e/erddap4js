@@ -1,5 +1,9 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+const ERDDAP_1 = __importDefault(require("./ERDDAP"));
 const operators = ["!=", "=~", "<=", ">=", "=", "<", ">"];
 function tabledapURLBuilder(options) {
     {
@@ -26,31 +30,42 @@ function tabledapURLBuilder(options) {
             if (!orderByOptions.includes(orderType)) {
                 throw new Error(`Order type given was '${orderType}'. It must be one of: ${orderByOptions}`);
             }
-            if (!orderVariables.length) {
+            if (!orderVariables.length && orderType !== 'orderByCount') {
                 throw new Error("At least one variable must be given to order by. eg {..., orderVariables: ['time']}");
             }
         }
-        constraints.forEach(([variable, operator, value]) => {
+        constraints.forEach(constraint => {
+            if (constraint.length !== 3)
+                throw new Error("Constraint must be an array of arrays with 3 elements, eg constraints: [['temperature','>=',1]] ");
+            let [variable, operator, value] = constraint;
+            if (variable !== 'time' && (operator == '=~' ||
+                (typeof value == 'string' && isNaN(value) && !(value.startsWith('"') && value.endsWith('"'))))) {
+                constraint[2] = `"${value}"`;
+            }
             if (!operators.includes(operator))
                 throw new Error(`Invalid operator: '${operator}'. Must be one of: '${operators}'`);
-            switch (variable) {
-                case "time":
-                    break;
-                case "latitude":
-                    if (Math.abs(value) > 90)
-                        throw new Error("Invalid lat: " + value);
-                    break;
-                case "longitude":
-                    if (Math.abs(value) > 180)
-                        throw new Error("Invalid long: " + value);
-                    break;
-                case "depth":
-                case "altitude":
-                    if (parseFloat(value) == NaN)
-                        throw new Error("Invalid depth/altitude: " + value);
-                    break;
-                default:
-                    break;
+            if (value !== 'NaN') {
+                switch (variable) {
+                    case "time":
+                        if (!(ERDDAP_1.default.validate8601time(value)))
+                            throw new Error(`Invalid date: "${value}". Should look like: 2005-07-01T00:00:00Z, 2005-07-05, 2005-06`);
+                        break;
+                    case "latitude":
+                        if (Math.abs(value) > 90)
+                            throw new Error("Invalid lat: " + value);
+                        break;
+                    case "longitude":
+                        if (Math.abs(value) > 180)
+                            throw new Error("Invalid long: " + value);
+                        break;
+                    case "depth":
+                    case "altitude":
+                        if (parseFloat(value) == NaN)
+                            throw new Error("Invalid depth/altitude: " + value);
+                        break;
+                    default:
+                        break;
+                }
             }
         });
         let query = `/tabledap/${dataset}.json`;
@@ -64,7 +79,7 @@ function tabledapURLBuilder(options) {
         if (distinct)
             expressions.push("distinct()");
         if (orderType && orderVariables)
-            expressions.push(`${orderType}(${orderVariables.join()})`);
+            expressions.push(`${orderType}("${orderVariables.join()}")`);
         if (expressions.length)
             query += '?' + (variables.length ? '' : '&') + expressions.join("&");
         return query;

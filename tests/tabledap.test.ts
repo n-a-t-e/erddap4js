@@ -9,29 +9,45 @@ describe("tabledap", function () {
       tabledapURLBuilder({
         dataset: "23",
         variables: ["time"],
-        constraints: [["time", ">", "2005"]]
+        constraints: [["time", ">", "2005-01-01"]]
       })
-    ).to.equal("/tabledap/23.json?time&time>2005");
-
+    ).to.equal("/tabledap/23.json?time&time>2005-01-01");
+  });
+  it("should quote string values", function () {
+    expect(
+      tabledapURLBuilder({
+        dataset: "blah",
+        variables: ["time"],
+        constraints: [["species", "=", "hippo"]]
+      })
+    ).to.equal('/tabledap/blah.json?time&species="hippo"');
+  });
+  it("should quote all =~ values", function () {
+    expect(
+      tabledapURLBuilder({
+        dataset: "blah",
+        variables: ["time"],
+        constraints: [["species", "=~", 123]]
+      })
+    ).to.equal('/tabledap/blah.json?time&species=~"123"');
   });
   it("should work with multiple constraints", function () {
     expect(
       tabledapURLBuilder({
         dataset: "23",
         variables: ["time"],
-        constraints: [["time", ">", "2005"], ["time", "<=", "2006"]]
+        constraints: [["time", ">", "2005-01-01"], ["time", "<=", "2005-01-01"]]
       })
-    ).to.equal("/tabledap/23.json?time&time>2005&time<=2006");
+    ).to.equal("/tabledap/23.json?time&time>2005-01-01&time<=2005-01-01");
 
   });
-
   it("should work without return variables", function () {
     expect(
       tabledapURLBuilder({
         dataset: "23",
-        constraints: [["time", ">", "2005"]]
+        constraints: [["time", ">", "2005-01-01"]]
       })
-    ).to.equal("/tabledap/23.json?&time>2005");
+    ).to.equal("/tabledap/23.json?&time>2005-01-01");
   });
   it("should work without constrains or variables", function () {
     expect(
@@ -55,7 +71,7 @@ describe("tabledap", function () {
         orderType: "orderBy",
         orderVariables: ['time']
       })
-    ).to.equal("/tabledap/23.json?&orderBy(time)");
+    ).to.equal('/tabledap/23.json?&orderBy("time")');
   });
   it("should fail unrecognized options", function () {
     expect(() =>

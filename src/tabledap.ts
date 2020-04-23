@@ -5,6 +5,8 @@ tabledap query builder
 
 */
 
+import ERDDAP from "./ERDDAP";
+
 const operators = ["!=", "=~", "<=", ">=", "=", "<", ">"];
 
 export interface tabledapOptions {
@@ -55,40 +57,60 @@ export function tabledapURLBuilder(options: tabledapOptions): string {
           `Order type given was '${orderType}'. It must be one of: ${orderByOptions}`
         );
       }
-
-      if (!orderVariables.length) {
+      // orderByCount doesnt need a variable list
+      if (!orderVariables.length && orderType !== 'orderByCount') {
         throw new Error("At least one variable must be given to order by. eg {..., orderVariables: ['time']}");
       }
     }
-    constraints.forEach(([variable, operator, value]) => {
+    // constraints should be an array of arrays
+    constraints.forEach(constraint => {
+      if (constraint.length !== 3)
+        throw new Error("Constraint must be an array of arrays with 3 elements, eg constraints: [['temperature','>=',1]] ");
+
+      let [variable, operator, value] = constraint;
+
+      // ERDDAP expects text to be quoted
+      if (variable !== 'time' && (operator == '=~' ||
+        // @ts-ignore
+        (typeof value == 'string' && isNaN(value) && !(value.startsWith('"') && value.endsWith('"'))))) {
+        constraint[2] = `"${value}"`;
+      }
+
       if (!operators.includes(operator))
         throw new Error(
           `Invalid operator: '${operator}'. Must be one of: '${operators}'`
         );
+      // NaN is usually allowed
+      if (value !== 'NaN') {
 
-      // some basic type checking of special case variables (LLAT variables)
-      switch (variable) {
-        case "time":
-          // TODO check time somehow. It can take things like "2005"
-          break;
-        case "latitude":
-          if (Math.abs(value) > 90)
-            throw new Error("Invalid lat: " + value);
-          break;
-        case "longitude":
-          if (Math.abs(value) > 180)
-            throw new Error("Invalid long: " + value);
-          break;
+        // some basic type checking of special case variables (LLAT variables)
+        switch (variable) {
+          case "time":
+            // Allowed: "1985-07-01T00:00:00Z", "2005-12","now","NaN",
 
-        case "depth":
-        case "altitude":
-          if (parseFloat(value) == NaN)
-            throw new Error("Invalid depth/altitude: " + value);
+            if (!(ERDDAP.validate8601time(value)))
+              throw new Error(`Invalid date: "${value}". Should look like: 2005-07-01T00:00:00Z, 2005-07-05, 2005-06`);
 
-          break;
+            break;
+          case "latitude":
+            if (Math.abs(value) > 90)
+              throw new Error("Invalid lat: " + value);
+            break;
+          case "longitude":
+            if (Math.abs(value) > 180)
+              throw new Error("Invalid long: " + value);
+            break;
 
-        default:
-          break;
+          case "depth":
+          case "altitude":
+            if (parseFloat(value) == NaN)
+              throw new Error("Invalid depth/altitude: " + value);
+
+            break;
+
+          default:
+            break;
+        }
       }
     });
 
@@ -101,7 +123,7 @@ export function tabledapURLBuilder(options: tabledapOptions): string {
       expressions.push(constraints.map(e => e.join("")).join("&"));
     if (distinct) expressions.push("distinct()");
     if (orderType && orderVariables)
-      expressions.push(`${orderType}(${orderVariables.join()})`);
+      expressions.push(`${orderType}("${orderVariables.join()}")`);
 
     // erddap requires the '?&' if there are no return variables
     if (expressions.length) query += '?' + (variables.length ? '' : '&') + expressions.join("&");

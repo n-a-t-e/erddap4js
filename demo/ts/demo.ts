@@ -1,35 +1,31 @@
 import ERDDAP from "../../src/ERDDAP"
 
 (async () => {
-    const erddapServer = new ERDDAP("https://coastwatch.pfeg.noaa.gov/erddap");
 
-    // list all available datasets
-    const datasets = await erddapServer.allDatasets();
+    const erddapServer = new ERDDAP("https://coastwatch.pfeg.noaa.gov/erddap", true);
 
-    // tabledap query
     const tableData = await erddapServer.tabledap({
         dataset: "erdCinpKfmSFNH",
-        variables: ["id", "size"],
-        constraints: [["time", ">=", "2007-06-24T00:00:00Z"]],
-    });
+        variables: ["id", "common_name", "size", "time"],
+        constraints: [
+            ["time", ">", "2006-04-23T15:20:36+00:00"],
+        ],
 
-    // griddap query
+    })
+
     const gridData = await erddapServer.griddap({
         dataset: "jplAmsreSstMon_LonPM180",
-        time: ["2003-11-16T12:00:00Z", "2005-12-16T12:00:00Z"],
+        time: ["2010-12-16T12:00:00Z", "2010-12-16T12:00:00Z"],
         lat: [50, 50],
         long: [-150, -120],
         variables: ["tos", "tosNobs", "tosStderr"],
     });
 
-    // get attribute and variable information for a dataset
-    const metadata = await erddapServer.info(
-        "erdCinpKfmSFNH"
-    );
+    // get variable and global attribute information for this dataset
+    const metadata = await erddapServer.info("erdCinpKfmSFNH");
 
-    // query via URL
-    const data = await erddapServer.queryURL(
-        "/tabledap/erdCinpKfmSFNH.json?id,size&time>=2007-06-24T00:00:00Z"
-    );
+    // get metadata for all datasets
+    const datasets = await erddapServer.allDatasets();
 
+    console.log(tableData);
 })();

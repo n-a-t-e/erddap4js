@@ -83,4 +83,14 @@ describe("ERDDAP class", function () {
 
     });
   });
+  describe("ERDDAP.validate8601time", function () {
+    it("parses dates", function () {
+      expect(ERDDAP.validate8601time('1985-07-01T00:00:00Z'), "1").to.be.true;
+      expect(ERDDAP.validate8601time('2001-01-01'), "2").to.be.true;
+      expect(ERDDAP.validate8601time('2010-02'), "3").to.be.true;
+      expect(ERDDAP.validate8601time('now'), "4").to.be.true;
+      expect(ERDDAP.validate8601time('NaN'), "5").to.be.true;
+      expect(ERDDAP.validate8601time('2005'), "6").to.be.false;
+    });
+  });
 })
