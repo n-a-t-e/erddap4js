@@ -53,9 +53,8 @@ See a demo in demo/node/runQuery.js
 - [griddap()](#griddap)
 - [info()](#info)
 - [allDatasets()](#allDatasets)
-- [queryURL()](#queryURL)
 
-### ERDDAP
+### ERDDAP()
 
 ```js
 const erddapServer = new ERDDAP("https://coastwatch.pfeg.noaa.gov/erddap");
@@ -63,7 +62,7 @@ const erddapServer = new ERDDAP("https://coastwatch.pfeg.noaa.gov/erddap");
 
 To use debug mode add a second argument of `true`, this will console log URLs of all queries.
 
-### tabledap
+### tabledap()
 
 - Everything is case sensitive
 - Constraints are ANDed together
@@ -90,7 +89,7 @@ Sample response:
 [{ id: "Anacapa (Landing Cove)", common_name: "Red sea urchin" } ... ];
 ```
 
-### griddap
+### griddap()
 
 - Constraints are set differently for griddap.
 - make sure to match number of dimensions with that of the dataset
@@ -118,7 +117,7 @@ Sample response:
   tosStderr: 0.6101171 }, ... ]
 ```
 
-### info
+### info()
 
 Get variable and global attribute information for this dataset
 
@@ -144,7 +143,7 @@ Sample response:
   }, ...]
 ```
 
-### allDatasets
+### allDatasets()
 
 Get metadata for all datasets- griddap, tabledap and others
 
