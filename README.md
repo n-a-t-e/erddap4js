@@ -37,14 +37,14 @@ Copy the file dist/browser/ERDDAP.js to the same folder with your HTML file.
 The import is different, the rest is the same as the browser example above.
 
 ```bash
-npm install git+https://github.com/n-a-t-e/erddap4js.git
+npm install erddap4js
 ```
 
 ```js
-const ERDDAP = require("erddap4js/dist/node/ERDDAP").default;
+const ERDDAP = require("erddap4js").default;
 ```
 
-See a demo in demo/node/runQuery.js
+See a demo in demo/node/query.js
 
 ## Documentation
 

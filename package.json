@@ -4,8 +4,8 @@
   },
   "name": "erddap4js",
   "description": "ERDDAP library for Node or the browser",
-  "version": "0.2.0",
-  "main": "ERDDAP.js",
+  "version": "0.2.6",
+  "main": "dist/node/ERDDAP.js",
   "devDependencies": {
     "@types/node": "^12.12.31",
     "@types/node-fetch": "^2.5.5",
@@ -35,5 +35,8 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/n-a-t-e/erddap4js.git"
-  }
+  },
+  "files": [
+    "dist/node/*"
+  ]
 }
