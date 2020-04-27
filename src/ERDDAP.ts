@@ -5,18 +5,25 @@ import { tabledapURLBuilder, tabledapOptions } from "./tabledap";
 export default class ERDDAP {
   // url of server, eg, https://example.com/erddap/
   serverURL: string;
+
   // clean up url
+
+  /**
+   * 
+   * @param {string} url - URL of erddap server, eg http://example.com/erddap
+   * @param {boolean} debug -  Debug mode - turns on some extra console logging
+   */
   constructor(url: string, private debug: boolean = false) {
     this.serverURL = ERDDAP.sanitizeERDDAPURL(url);
   }
-  static validate8601time(str: string): Boolean {
+  static isValid8601DateTime(str: string): Boolean {
     if (typeof (str) !== 'string')
       return false
 
     // from https://stackoverflow.com/questions/28020805/regex-validate-correct-iso8601-date-string-with-time
     const regex8601 = /^(?:\d{4}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1\d|2[0-8])|(?:0[13-9]|1[0-2])-(?:29|30)|(?:0[13578]|1[02])-31)|(?:[1-9]\d(?:0[48]|[2468][048]|[13579][26])|(?:[2468][048]|[13579][26])00)-02-29)T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:Z|[+-][01]\d:[0-5]\d)$/;
-
-    const isValidDate = Boolean(str.match(regex8601) || str == 'now' || str == "NaN" || str.match(/^\d{4}-[01]\d(-[0-3]\d)?$/));
+    const regex8601DateOnly = /^\d{4}-[01]\d(-[0-3]\d)?$/;
+    const isValidDate = Boolean(str.match(regex8601) || str.match(regex8601DateOnly));
     return isValidDate
   }
 
@@ -62,32 +69,67 @@ export default class ERDDAP {
       return response.json().then(ERDDAP.reshapeJSON);
     });
   }
-
+  /**
+   * Tabledap query
+   * @param {string} options.dataset - The dataset ID
+   * @param {Array} options.variables - An array of variables to include in the results
+   * @param {Array} options.constraints - Constrains to filter on, eg [["time",">","2005-11"]]
+   * @param {boolean} options.distinct - Only return distinct values
+   * @param {string} options.orderType - One of orderBy, orderByClosest, orderByCount, orderByLimit, orderByMax, orderByMin, orderByMinMax, orderByMean
+   * @param {Array} options.orderVariables - Argument to pass to ordering function given in orderType
+   * @returns {Object[]} Results array
+   */
   async tabledap(options: tabledapOptions) {
     return this.queryURL(tabledapURLBuilder(options));
   }
 
+  /**
+  * Griddap query
+  * @param {string} options.dataset - dataset ID
+  * @param {Array} options.variables - An array of variables to include in the results
+  * @param {Array} options.time - An array with time range and stride, eg ["2001-01-01T00:00:00Z","2001-01-01T00:00:00Z",2]
+  * @param {Array} options.altitude - An array with altitude range
+  * @param {Array} options.latitude - An array with latitude range
+  * @param {Array} options.longitude - An array with longitude range
+  * @returns {Object[]} Results array
+  */
   async griddap(options: griddapOptions) {
     return this.queryURL(griddapURLBuilder(options));
   }
 
-  // parse out the message="" section
+  /**
+  * Parses ERDDAP's error responses
+  */
   static errorParser(errorMessage: string): string {
-    const re = new RegExp(/message=\"(.*)\"/).exec(errorMessage) || [];
+    let pattern;
+    // parse v1.8 errors
+    if (errorMessage.startsWith('<!DOCTYPE html>'))
+      pattern = /message\<\/b\> \<u\>(.*?)\<\/u\>/;
+    // parse v2 errors
+    else pattern = /message=\"(.*)\"/
+    const re = new RegExp(pattern).exec(errorMessage) || [];
 
     if (re.length > 1)
-      return re[1].replace(/\\n/g, "\n").replace(/\\/g, '');
+      return re[1].replace(/\\n/g, "\n").replace(/\\/g, '').replace(/&quot;/g, '"');
 
     return errorMessage;
   }
-  // return type
+  /**
+   * Get metadata about a dataset, including global and variable attributes
+   * @param {string} datasetID
+   * @returns {Object[]} Results array
+   */
   async info(datasetID: string): Promise<object[]> {
     if (!datasetID) throw new Error('Missing dataset ID');
 
     return this.queryURL(`/info/${datasetID}/index.json`);
   }
 
-  // get array of dataset info
+  /**
+  * Get metadata about all datasets on the server, including griddap and tabledap.
+  * Does not include variable information
+  * @returns {Object[]} Results array
+  */
   async allDatasets(): Promise<object[]> {
     // this gets griddap datasets too
     const res = await this.queryURL("/tabledap/allDatasets.json");

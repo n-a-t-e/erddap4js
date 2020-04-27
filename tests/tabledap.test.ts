@@ -13,6 +13,15 @@ describe("tabledap", function () {
       })
     ).to.equal("/tabledap/23.json?time&time>2005-01-01");
   });
+  it("should work with quoted or unquoted numerics", function () {
+    expect(
+      tabledapURLBuilder({
+        dataset: "blah",
+        variables: ["time"],
+        constraints: [["depth", ">", 100], ["depth", "<", "200"]]
+      })
+    ).to.equal('/tabledap/blah.json?time&depth>100&depth<200');
+  });
   it("should quote string values", function () {
     expect(
       tabledapURLBuilder({

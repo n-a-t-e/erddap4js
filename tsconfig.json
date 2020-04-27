@@ -8,7 +8,7 @@
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "allowJs": true,
-    "removeComments": true,
+    "removeComments": false,
     "resolveJsonModule": true,
     "esModuleInterop": true
   },

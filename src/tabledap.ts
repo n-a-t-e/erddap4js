@@ -87,16 +87,16 @@ export function tabledapURLBuilder(options: tabledapOptions): string {
         switch (variable) {
           case "time":
             // Allowed: "1985-07-01T00:00:00Z", "2005-12","now","NaN",
-
-            if (!(ERDDAP.validate8601time(value)))
+            if (!ERDDAP.isValid8601DateTime(value) && value != 'now' && value != "NaN")
               throw new Error(`Invalid date: "${value}". Should look like: 2005-07-01T00:00:00Z, 2005-07-05, 2005-06`);
-
             break;
           case "latitude":
+          case "lat":
             if (Math.abs(value) > 90)
               throw new Error("Invalid lat: " + value);
             break;
           case "longitude":
+          case "lon":
             if (Math.abs(value) > 180)
               throw new Error("Invalid long: " + value);
             break;
@@ -105,10 +105,6 @@ export function tabledapURLBuilder(options: tabledapOptions): string {
           case "altitude":
             if (parseFloat(value) == NaN)
               throw new Error("Invalid depth/altitude: " + value);
-
-            break;
-
-          default:
             break;
         }
       }
