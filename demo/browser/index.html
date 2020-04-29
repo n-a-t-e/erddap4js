@@ -18,7 +18,7 @@
       const data = await erddapServer.tabledap({
         dataset: "erdCinpKfmSFNH",
         variables: ["id", "size"],
-        constraints: ["time>=2007-06-24T00:00:00Z"]
+        constraints: [["time", ">=", "2007-06-24T00:00:00Z"]]
       });
 
       console.log(data);

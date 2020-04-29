@@ -3,7 +3,7 @@
     "node-fetch": "^2.6.0"
   },
   "name": "erddap4js",
-  "description": "ERDDAP library for Node or the browser",
+  "description": "ERDDAP library for Node and the browser",
   "version": "0.2.6",
   "main": "dist/node/ERDDAP.js",
   "devDependencies": {
